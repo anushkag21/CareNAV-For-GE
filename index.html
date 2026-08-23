@@ -1,0 +1,1074 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>CARENAV — Sign Se Pehle · Clickable Prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700;800&family=Spline+Sans+Mono:wght@500;600;700&family=Noto+Sans+Devanagari:wght@500;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   CARENAV design tokens
+   world: hospital admission desk · ledger ink · highlighter proof
+   ============================================================ */
+:root{
+  --chalk:#FAF9F5;          /* app background — clinical warm white */
+  --card:#FFFFFF;
+  --ink:#17251F;            /* ledger ink */
+  --ink-soft:#4C5B53;
+  --ink-faint:#7C8A82;
+  --line:#E6E2D8;
+  --ever:#0B5A47;           /* evergreen — trust / primary action */
+  --ever-deep:#073B30;
+  --ever-tint:#E3EFEA;
+  --haldi:#FFD84D;          /* highlighter — the proof marker */
+  --haldi-soft:#FFF3C2;
+  --red:#C0311E;  --red-bg:#FBE9E4;  --red-line:#EFC4BA;
+  --amber:#8F6400; --amber-bg:#FFF3D2; --amber-line:#EDD79A;
+  --green:#137A4C; --green-bg:#E3F2E9; --green-line:#BBDEC9;
+  --stage:#0D1A15;          /* presentation backdrop */
+  --rail-txt:#9AB3A7;
+  --disp:'Bricolage Grotesque','Figtree',sans-serif;
+  --body:'Figtree','Noto Sans Devanagari',system-ui,sans-serif;
+  --mono:'Spline Sans Mono',ui-monospace,monospace;
+  --dev:'Noto Sans Devanagari','Figtree',sans-serif;
+  --r:18px;
+  --shadow:0 10px 30px rgba(13,26,21,.10), 0 2px 6px rgba(13,26,21,.06);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{
+  font-family:var(--body); color:var(--ink); background:var(--stage);
+  background-image:radial-gradient(1200px 700px at 70% -10%, rgba(19,122,76,.18), transparent 60%),
+                   radial-gradient(900px 600px at 0% 110%, rgba(255,216,77,.07), transparent 55%);
+  min-height:100vh;
+}
+button{font-family:inherit;border:none;cursor:pointer;background:none;color:inherit}
+::selection{background:var(--haldi);color:var(--ink)}
+
+/* ---------- presentation stage ---------- */
+.topbar-demo{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:14px 22px;color:#DCE9E2;border-bottom:1px solid rgba(255,255,255,.08);
+}
+.brandline{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.brandline .name{font-family:var(--disp);font-weight:800;letter-spacing:.02em;font-size:18px;color:#fff}
+.brandline .tag{font-size:13px;color:var(--rail-txt)}
+.badges{display:flex;gap:8px;flex-wrap:wrap}
+.badge{
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;
+  padding:5px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.18);color:#CFE0D7;
+}
+.badge.warn{border-color:rgba(255,216,77,.5);color:var(--haldi)}
+
+.stage{
+  display:grid;grid-template-columns:300px minmax(0,1fr);
+  gap:28px;align-items:start;justify-content:center;
+  max-width:1160px;margin:0 auto;padding:26px 22px 60px;
+}
+@media (max-width:960px){ .stage{grid-template-columns:1fr;gap:18px} .rail{order:2} }
+
+/* ---------- presenter rail ---------- */
+.rail{position:sticky;top:22px;display:flex;flex-direction:column;gap:6px}
+.rail h2{
+  font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--rail-txt);padding:4px 10px 10px;
+}
+.rail-item{
+  display:grid;grid-template-columns:30px 1fr;gap:10px;align-items:start;text-align:left;
+  padding:10px 12px;border-radius:14px;color:var(--rail-txt);transition:background .18s,color .18s;
+}
+.rail-item .num{
+  font-family:var(--mono);font-size:12px;font-weight:600;color:#5F776C;
+  border:1px solid rgba(255,255,255,.14);border-radius:8px;width:26px;height:26px;
+  display:grid;place-items:center;transition:all .18s;
+}
+.rail-item .lbl{font-weight:600;font-size:14px;line-height:1.25;color:#C8D8D0}
+.rail-item .sub{font-size:11.5px;color:#6E857A;margin-top:2px;line-height:1.35}
+.rail-item:hover{background:rgba(255,255,255,.05)}
+.rail-item.active{background:rgba(19,122,76,.16)}
+.rail-item.active .num{background:var(--haldi);color:var(--ink);border-color:var(--haldi)}
+.rail-item.active .lbl{color:#fff}
+.rail-note{
+  margin-top:14px;padding:12px 14px;border-radius:14px;border:1px dashed rgba(255,255,255,.16);
+  color:#8AA396;font-size:11.5px;line-height:1.5;
+}
+.rail-note b{color:#C8D8D0}
+
+/* ---------- phone ---------- */
+.phone-wrap{display:flex;flex-direction:column;align-items:center;gap:14px}
+.phone{
+  width:min(400px,96vw);height:min(820px,88vh);min-height:640px;
+  background:#0A120E;border-radius:52px;padding:12px;
+  box-shadow:0 40px 90px rgba(0,0,0,.55), inset 0 0 0 2px rgba(255,255,255,.06);
+  position:relative;
+}
+.phone-screen{
+  width:100%;height:100%;background:var(--chalk);border-radius:42px;overflow:hidden;
+  position:relative;display:flex;flex-direction:column;
+}
+.statusbar{
+  flex:0 0 auto;display:flex;justify-content:space-between;align-items:center;
+  padding:12px 22px 6px;font-family:var(--mono);font-size:11.5px;font-weight:600;color:var(--ink);
+}
+.statusbar .pill{
+  position:absolute;left:50%;top:10px;transform:translateX(-50%);
+  width:110px;height:24px;background:#0A120E;border-radius:999px;
+}
+.statusbar .right{display:flex;gap:6px;align-items:center}
+
+/* ---------- app + screens ---------- */
+.app{flex:1;position:relative;overflow:hidden}
+.screen{
+  position:absolute;inset:0;overflow-y:auto;padding:16px 18px 26px;
+  opacity:0;transform:translateX(26px);pointer-events:none;
+  transition:opacity .24s ease,transform .24s ease;
+  scrollbar-width:thin;
+}
+.screen.active{opacity:1;transform:none;pointer-events:auto}
+.screen.back{transform:translateX(-26px)}
+.screen::-webkit-scrollbar{width:4px}
+.screen::-webkit-scrollbar-thumb{background:var(--line);border-radius:4px}
+
+.apptop{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.apptop .back{
+  width:34px;height:34px;border-radius:12px;border:1px solid var(--line);background:var(--card);
+  display:grid;place-items:center;font-size:15px;color:var(--ink-soft);
+}
+.apptop .crumb{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint)}
+.apptop .crumb b{color:var(--ever)}
+
+.h-display{font-family:var(--disp);font-weight:800;font-size:24px;line-height:1.12;letter-spacing:-.01em}
+.h-sub{color:var(--ink-soft);font-size:14px;line-height:1.5;margin-top:6px}
+
+/* highlighter marker — the signature */
+.mark{
+  position:relative;display:inline;white-space:pre-wrap;
+  background:linear-gradient(104deg, transparent 0%, transparent 2%, var(--haldi) 2.5%, var(--haldi) 97%, transparent 98%);
+  background-size:100% 78%;background-position:0 62%;background-repeat:no-repeat;
+  padding:0 .15em;border-radius:3px;
+}
+.mark-anim{background-size:0% 78%}
+.mark-anim.swiped{transition:background-size .7s cubic-bezier(.2,.7,.2,1);background-size:100% 78%}
+
+/* cards */
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px;box-shadow:0 2px 10px rgba(13,26,21,.04)}
+.card + .card{margin-top:12px}
+.stack>*+*{margin-top:12px}
+
+/* buttons */
+.btn{
+  display:flex;align-items:center;justify-content:center;gap:10px;width:100%;
+  font-weight:700;font-size:16px;border-radius:16px;padding:16px 18px;
+  transition:transform .08s ease, box-shadow .2s;
+}
+.btn:active{transform:scale(.98)}
+.btn-primary{background:var(--ever);color:#fff;box-shadow:0 12px 26px rgba(11,90,71,.35)}
+.btn-primary:hover{background:var(--ever-deep)}
+.btn-hero{font-family:var(--disp);font-weight:800;font-size:17px;letter-spacing:.01em;padding:18px}
+.btn-ghost{background:var(--card);border:1.5px solid var(--line);color:var(--ink);font-weight:600}
+.btn-soft{background:var(--ever-tint);color:var(--ever-deep);font-weight:700}
+.btn-red{background:var(--red);color:#fff}
+.btn-row{display:flex;gap:10px}
+.btn-row .btn{flex:1}
+
+/* chips + source tags */
+.chip{
+  display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;
+  padding:5px 11px;border-radius:999px;border:1px solid var(--line);background:#fff;color:var(--ink-soft);
+}
+.chip.green{background:var(--green-bg);border-color:var(--green-line);color:var(--green)}
+.chip.red{background:var(--red-bg);border-color:var(--red-line);color:var(--red)}
+.chip.amber{background:var(--amber-bg);border-color:var(--amber-line);color:var(--amber)}
+.src{
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.03em;color:var(--ink-faint);
+  background:var(--chalk);border:1px solid var(--line);border-radius:7px;padding:3px 7px;white-space:nowrap;
+}
+
+/* option cards (onboarding) */
+.opt{
+  display:grid;grid-template-columns:46px 1fr 18px;align-items:center;gap:12px;width:100%;text-align:left;
+  background:var(--card);border:1.5px solid var(--line);border-radius:18px;padding:16px 14px;
+  transition:border-color .15s, box-shadow .15s, transform .08s;
+}
+.opt:hover{border-color:var(--ever);box-shadow:var(--shadow)}
+.opt:active{transform:scale(.985)}
+.opt .ico{width:46px;height:46px;border-radius:14px;background:var(--ever-tint);display:grid;place-items:center;font-size:22px}
+.opt .t{font-weight:700;font-size:15.5px}
+.opt .s{font-size:12.5px;color:var(--ink-soft);margin-top:2px;line-height:1.35}
+.opt .arrow{color:var(--ink-faint);font-size:16px}
+
+/* brand block */
+.brandblock{padding:34px 6px 22px;text-align:left}
+.brandblock .logo{font-family:var(--disp);font-weight:800;font-size:34px;letter-spacing:.01em;color:var(--ever-deep)}
+.brandblock .logo span{color:var(--ever)}
+.brandblock .hindi{font-family:var(--dev);font-weight:700;font-size:19px;margin-top:8px}
+.brandblock .tg{margin-top:10px;color:var(--ink-soft);font-size:13.5px;line-height:1.5}
+
+/* upload */
+.upzone{
+  width:100%;border:2px dashed #BFD3CB;background:var(--ever-tint);border-radius:22px;
+  padding:34px 18px;display:flex;flex-direction:column;align-items:center;gap:10px;
+  transition:border-color .15s, background .15s;
+}
+.upzone:hover{border-color:var(--ever)}
+.upzone .cam{width:64px;height:64px;border-radius:20px;background:var(--ever);color:#fff;display:grid;place-items:center;font-size:28px;box-shadow:0 10px 22px rgba(11,90,71,.35)}
+.upzone .t{font-weight:800;font-size:16px;color:var(--ever-deep)}
+.upzone .s{font-size:12.5px;color:var(--ink-soft)}
+.progress-card{display:none}
+.progress-card.on{display:block}
+.pbar{height:10px;border-radius:999px;background:#EAE6DC;overflow:hidden;margin-top:12px}
+.pbar>i{display:block;height:100%;width:0%;background:linear-gradient(90deg,var(--ever),#1E9E77);border-radius:999px;transition:width .12s linear}
+.pmeta{display:flex;justify-content:space-between;align-items:center;margin-top:10px;font-family:var(--mono);font-size:12px;color:var(--ink-soft)}
+.pstatus{margin-top:10px;font-size:13.5px;color:var(--ink-soft);min-height:20px}
+.pstatus b{color:var(--ever-deep)}
+.done-flag{display:none;margin-top:12px;padding:12px;border-radius:14px;background:var(--green-bg);border:1px solid var(--green-line);color:var(--green);font-weight:700;font-size:13.5px}
+.done-flag.on{display:block}
+
+/* policy card lines */
+.policy-head{display:flex;flex-direction:column;gap:8px}
+.policy-head .pname{font-family:var(--disp);font-weight:800;font-size:18px}
+.policy-head .prow{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.fiveline{list-style:none}
+.fiveline li{
+  display:grid;grid-template-columns:34px 1fr;gap:11px;align-items:start;
+  padding:13px 0;border-bottom:1px dashed var(--line);
+}
+.fiveline li:last-child{border-bottom:none;padding-bottom:4px}
+.fiveline .fi{width:34px;height:34px;border-radius:11px;background:var(--chalk);border:1px solid var(--line);display:grid;place-items:center;font-size:16px}
+.fiveline .fx{font-size:13.8px;line-height:1.45}
+.fiveline .fx b{font-weight:800}
+.fiveline .meta{margin-top:5px;display:flex;gap:6px;flex-wrap:wrap}
+
+/* hospital cards */
+.hosp{border-width:1.5px}
+.hosp .hh{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px}
+.hosp .hn{font-weight:800;font-size:15.5px}
+.hosp .hrow{display:flex;justify-content:space-between;gap:10px;font-size:12.8px;color:var(--ink-soft);padding:5px 0;border-bottom:1px dashed var(--line)}
+.hosp .hrow:last-of-type{border-bottom:none}
+.hosp .hrow b{color:var(--ink);font-weight:700}
+.hstrip{margin-top:10px;border-radius:12px;padding:9px 12px;font-size:12.8px;font-weight:700;display:flex;gap:8px;align-items:center}
+.hstrip.g{background:var(--green-bg);color:var(--green);border:1px solid var(--green-line)}
+.hstrip.a{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-line)}
+.hstrip.r{background:var(--red-bg);color:var(--red);border:1px solid var(--red-line)}
+.hosp.pick{border-color:var(--ever)}
+
+/* checkpoint viewfinder */
+.ctx{
+  display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:11px;letter-spacing:.06em;
+  text-transform:uppercase;color:var(--ink-faint);margin-bottom:10px;
+}
+.ctx b{color:var(--ever)}
+.viewfinder{
+  position:relative;border-radius:22px;background:#101816;padding:26px 18px;overflow:hidden;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.08);
+}
+.vf-corner{position:absolute;width:26px;height:26px;border:3px solid var(--haldi);opacity:.95}
+.vf-corner.tl{top:12px;left:12px;border-right:none;border-bottom:none;border-radius:8px 0 0 0}
+.vf-corner.tr{top:12px;right:12px;border-left:none;border-bottom:none;border-radius:0 8px 0 0}
+.vf-corner.bl{bottom:12px;left:12px;border-right:none;border-top:none;border-radius:0 0 0 8px}
+.vf-corner.br{bottom:12px;right:12px;border-left:none;border-top:none;border-radius:0 0 8px 0}
+.scanline{position:absolute;left:8%;right:8%;height:2px;background:linear-gradient(90deg,transparent,var(--haldi),transparent);top:12%;animation:scan 2.6s ease-in-out infinite;opacity:.85}
+@keyframes scan{0%,100%{top:12%}50%{top:86%}}
+.docform{
+  background:#FDFCF7;border-radius:10px;padding:16px 15px;transform:rotate(-1deg);
+  box-shadow:0 14px 30px rgba(0,0,0,.45);font-size:12px;color:#2A332E;
+}
+.docform .dh{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#6C7A72;display:flex;justify-content:space-between}
+.docform h4{font-family:var(--disp);font-size:14px;font-weight:800;margin:7px 0 3px}
+.docform .drow{display:flex;justify-content:space-between;gap:10px;padding:5.5px 0;border-bottom:1px solid #E8E4D6;font-size:11.8px}
+.docform .drow b{font-weight:800}
+.docform .hotcell{background:var(--haldi-soft);border-radius:4px;padding:0 4px;font-weight:800}
+.docform .sig{margin-top:9px;font-size:11px;color:#6C7A72}
+.docform .sigline{display:inline-block;width:110px;border-bottom:1.5px solid #9AA69E;transform:translateY(2px)}
+.shutter-area{display:flex;flex-direction:column;align-items:center;gap:8px;margin-top:16px}
+.shutter{
+  width:74px;height:74px;border-radius:50%;background:#fff;border:5px solid var(--ever);
+  display:grid;place-items:center;font-size:26px;box-shadow:0 12px 26px rgba(11,90,71,.4);
+  transition:transform .1s;
+}
+.shutter:active{transform:scale(.92)}
+.shutter-hint{font-size:12.5px;color:var(--ink-soft);font-weight:600}
+.flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none;z-index:40;border-radius:42px}
+.flash.go{animation:flashk .5s ease}
+@keyframes flashk{0%{opacity:0}18%{opacity:.95}100%{opacity:0}}
+
+/* checking overlay */
+.checkover{
+  position:absolute;inset:0;background:rgba(250,249,245,.97);z-index:30;display:none;
+  flex-direction:column;justify-content:center;padding:30px 26px;gap:8px;
+}
+.checkover.on{display:flex}
+.checkover h3{font-family:var(--disp);font-weight:800;font-size:21px;margin-bottom:12px}
+.cstep{
+  display:flex;align-items:center;gap:12px;padding:13px 14px;border-radius:14px;
+  background:var(--card);border:1px solid var(--line);opacity:.28;transform:translateY(6px);
+  transition:opacity .3s, transform .3s;
+}
+.cstep.on{opacity:1;transform:none}
+.cstep .ck{
+  width:26px;height:26px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;
+  font-size:13px;color:#fff;flex:0 0 auto;
+}
+.cstep.on .ck{background:var(--ever);border-color:var(--ever)}
+.cstep .cx{font-size:13.5px;line-height:1.4}
+.cstep .cx b{font-weight:800}
+.cfoot{margin-top:14px;font-family:var(--mono);font-size:11px;color:var(--ink-faint);text-align:center}
+
+/* verdict */
+.verdict-banner{
+  border-radius:20px;padding:18px 16px;color:#fff;background:var(--red);
+  box-shadow:0 16px 34px rgba(192,49,30,.38);
+}
+.verdict-banner .vk{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;opacity:.85}
+.verdict-banner h2{font-family:var(--disp);font-weight:800;font-size:25px;line-height:1.06;margin-top:5px}
+.verdict-banner .vs{margin-top:8px;font-size:13.5px;opacity:.95;line-height:1.45}
+.money .naive{color:var(--ink-soft);font-size:13.5px}
+.money .naive s{color:var(--ink-faint)}
+.money .real{display:flex;align-items:baseline;gap:10px;margin-top:6px;flex-wrap:wrap}
+.money .real .amt{font-family:var(--disp);font-weight:800;font-size:40px;letter-spacing:-.02em;color:var(--red)}
+.money .real .lb{font-weight:700;font-size:14px}
+.money .why{margin-top:8px;font-size:13px;color:var(--ink-soft);line-height:1.5}
+.brk{list-style:none;margin-top:4px}
+.brk li{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px dashed var(--line);font-size:13.3px}
+.brk li:last-child{border-bottom:none}
+.brk .amt{font-family:var(--mono);font-weight:700}
+.brk .prot{color:var(--green)}
+.alt{
+  border:1.5px solid var(--green-line);background:var(--green-bg);border-radius:18px;padding:14px;
+}
+.alt .at{font-weight:800;color:var(--green);font-size:14.5px}
+.alt .as{font-size:13px;color:#1E5A3C;margin-top:4px;line-height:1.45}
+.finefoot{font-size:11.5px;color:var(--ink-faint);line-height:1.5;text-align:center;padding:2px 8px}
+
+/* proof / policy page */
+.docpage{
+  background:#FFFEF8;border:1px solid #E8E3D2;border-radius:14px;padding:18px 16px;
+  box-shadow:var(--shadow);font-size:12.6px;line-height:1.62;color:#33403A;
+  font-family:Georgia,'Times New Roman',serif;
+}
+.docpage .ph{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:#8A9289;display:flex;justify-content:space-between;border-bottom:1px solid #EAE5D4;padding-bottom:7px;margin-bottom:10px}
+.docpage h5{font-family:var(--body);font-size:12.5px;font-weight:800;color:var(--ink);margin:8px 0 4px}
+.docpage .clause mark{background:var(--haldi);padding:1px 2px;border-radius:2px;box-decoration-break:clone;-webkit-box-decoration-break:clone}
+.docpage .pf{margin-top:10px;border-top:1px solid #EAE5D4;padding-top:6px;font-family:var(--mono);font-size:9.5px;color:#8A9289;text-align:center;letter-spacing:.1em}
+.plain4{list-style:none;counter-reset:pl}
+.plain4 li{display:grid;grid-template-columns:24px 1fr;gap:10px;padding:8px 0;font-size:13.6px;line-height:1.45;align-items:start}
+.plain4 li::before{
+  counter-increment:pl;content:counter(pl);font-family:var(--mono);font-size:11px;font-weight:700;
+  width:22px;height:22px;border-radius:8px;background:var(--haldi);display:grid;place-items:center;color:var(--ink);
+}
+
+/* ask the desk */
+.quotecard{
+  background:var(--ever-deep);color:#F2F7F4;border-radius:20px;padding:20px 18px;
+  box-shadow:0 16px 34px rgba(7,59,48,.4);position:relative;overflow:hidden;
+}
+.quotecard::before{content:'“';position:absolute;top:-18px;right:8px;font-family:var(--disp);font-size:120px;color:rgba(255,216,77,.16);font-weight:800}
+.quotecard .qh{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:#9CC8B8}
+.quotecard .qt{font-size:16.5px;font-weight:700;line-height:1.55;margin-top:8px}
+.quotecard .qe{font-size:12.3px;color:#B9D2C8;margin-top:10px;line-height:1.5;border-top:1px solid rgba(255,255,255,.14);padding-top:10px}
+
+/* care journey */
+.timeline{display:flex;gap:6px;overflow-x:auto;padding:2px 0 6px;scrollbar-width:none}
+.timeline::-webkit-scrollbar{display:none}
+.tstage{
+  flex:0 0 auto;display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;
+  padding:8px 12px;border-radius:999px;border:1.5px solid var(--line);background:#fff;color:var(--ink-soft);
+}
+.tstage.done{background:var(--ever-tint);border-color:#BFD8CE;color:var(--ever-deep)}
+.tstage.now{background:var(--ink);border-color:var(--ink);color:#fff;position:relative}
+.tstage.now .dot{width:8px;height:8px;border-radius:50%;background:var(--haldi);animation:pulse 1.4s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(255,216,77,.7)}60%{box-shadow:0 0 0 7px rgba(255,216,77,0)}}
+.hisaab{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:10px}
+.hnum{background:var(--chalk);border:1px solid var(--line);border-radius:14px;padding:11px 10px;text-align:center}
+.hnum .hv{font-family:var(--mono);font-weight:700;font-size:15.5px;letter-spacing:-.02em}
+.hnum .hl{font-size:10.6px;color:var(--ink-soft);margin-top:3px;line-height:1.3}
+.hnum.pay .hv{color:var(--red)}
+.hnum.cov .hv{color:var(--green)}
+.runstrip{
+  margin-top:10px;background:var(--ink);color:#E8F0EC;border-radius:12px;padding:10px 13px;
+  font-family:var(--mono);font-size:11.6px;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;
+}
+.runstrip b{color:var(--haldi)}
+
+/* discharge ledger */
+.ledger{width:100%;border-collapse:collapse;font-size:12.6px}
+.ledger th{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint);text-align:right;padding:7px 4px;border-bottom:1.5px solid var(--line)}
+.ledger th:first-child,.ledger td:first-child{text-align:left}
+.ledger td{padding:8px 4px;border-bottom:1px dashed var(--line);text-align:right;font-family:var(--mono)}
+.ledger td:first-child{font-family:var(--body);font-weight:600}
+.ledger tr.total td{border-top:2px solid var(--ink);border-bottom:none;font-weight:700;padding-top:10px}
+.ledger .pay{color:var(--red)}
+.savecard{
+  background:linear-gradient(135deg,var(--ever-deep),#0E5A47);color:#F0F7F3;border-radius:20px;padding:17px 16px;
+  box-shadow:0 16px 34px rgba(7,59,48,.4);
+}
+.savecard .sv{font-family:var(--disp);font-weight:800;font-size:26px;color:var(--haldi)}
+.savecard p{font-size:13px;line-height:1.55;margin-top:6px;color:#CBE2D8}
+.checklist{list-style:none}
+.checklist li{display:flex;gap:10px;align-items:center;padding:9px 0;border-bottom:1px dashed var(--line);font-size:13.6px;font-weight:600}
+.checklist li:last-child{border-bottom:none}
+.checklist .cb{width:22px;height:22px;border-radius:7px;background:var(--green);color:#fff;display:grid;place-items:center;font-size:12px}
+
+/* green banner (discharge) */
+.gbanner{background:var(--green);color:#fff;border-radius:20px;padding:16px;box-shadow:0 14px 30px rgba(19,122,76,.35)}
+.gbanner h2{font-family:var(--disp);font-weight:800;font-size:22px;line-height:1.1}
+.gbanner p{font-size:13px;margin-top:6px;opacity:.95}
+
+/* toast */
+.toast{
+  position:absolute;left:50%;bottom:26px;transform:translate(-50%,16px);z-index:60;
+  background:var(--ink);color:#fff;font-size:13px;font-weight:700;padding:10px 16px;border-radius:999px;
+  opacity:0;pointer-events:none;transition:opacity .25s, transform .25s;white-space:nowrap;
+}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+
+/* presenter cue + controls */
+.cuebar{
+  width:min(400px,96vw);background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);
+  border-radius:16px;padding:11px 15px;color:#B9CFC4;font-size:12.8px;line-height:1.5;
+}
+.cuebar b{color:var(--haldi);font-family:var(--mono);font-size:11px;letter-spacing:.06em;margin-right:8px}
+.controls{display:flex;align-items:center;gap:14px}
+.navbtn{
+  width:44px;height:44px;border-radius:14px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);
+  color:#DCE9E2;font-size:17px;display:grid;place-items:center;transition:background .15s;
+}
+.navbtn:hover{background:rgba(255,255,255,.14)}
+.dots{display:flex;gap:6px}
+.dots i{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.22);cursor:pointer;transition:all .18s}
+.dots i.on{background:var(--haldi);width:20px;border-radius:99px}
+.kbd-hint{font-family:var(--mono);font-size:10.5px;color:#5F776C;letter-spacing:.06em}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+}
+</style>
+</head>
+<body>
+
+<!-- ======= demo top bar ======= -->
+<div class="topbar-demo">
+  <div class="brandline">
+    <span class="name">CARENAV</span>
+    <span class="tag">Sign Se Pehle · clickable prototype</span>
+  </div>
+  <div class="badges">
+    <span class="badge">GE HealthCare PCC 2026 · Hospitality</span>
+    <span class="badge warn">Synthetic demo data</span>
+  </div>
+</div>
+
+<div class="stage">
+
+  <!-- ======= presenter rail ======= -->
+  <nav class="rail" id="rail">
+    <h2>2-min demo flow</h2>
+    <button class="rail-item" data-go="0"><span class="num">1</span><span><span class="lbl">Onboarding</span><div class="sub">Route to the right policy source</div></span></button>
+    <button class="rail-item" data-go="1"><span class="num">2</span><span><span class="lbl">Policy Upload</span><div class="sub">AI reads the document — once</div></span></button>
+    <button class="rail-item" data-go="2"><span class="num">3</span><span><span class="lbl">Policy Card</span><div class="sub">30 pages → 5 lines + audio</div></span></button>
+    <button class="rail-item" data-go="3"><span class="num">4</span><span><span class="lbl">Hospital Filter</span><div class="sub">Checkpoint 0 — policy-aware choice</div></span></button>
+    <button class="rail-item" data-go="4"><span class="num">5</span><span><span class="lbl">The Checkpoint · Scan</span><div class="sub">Photo the paper before signing</div></span></button>
+    <button class="rail-item" data-go="5"><span class="num">5</span><span><span class="lbl">The Checkpoint · Verdict</span><div class="sub">🔴 ~₹18,000, not ₹12,000</div></span></button>
+    <button class="rail-item" data-go="6"><span class="num">6</span><span><span class="lbl">Why? — Clause proof</span><div class="sub">The highlighted line, page 7</div></span></button>
+    <button class="rail-item" data-go="7"><span class="num">7</span><span><span class="lbl">Ask the Desk</span><div class="sub">The exact question, spoken aloud</div></span></button>
+    <button class="rail-item" data-go="8"><span class="num">8</span><span><span class="lbl">Care Journey + Hisaab</span><div class="sub">Stage context + daily ledger</div></span></button>
+    <button class="rail-item" data-go="9"><span class="num">9</span><span><span class="lbl">Discharge</span><div class="sub">No surprises — full ledger</div></span></button>
+    <div class="rail-note"><b>AI reads, code decides.</b> Verdicts here are deterministic — same paper, same answer. Uncertainty always routes to 🟡, never a guess.</div>
+  </nav>
+
+  <!-- ======= phone ======= -->
+  <div class="phone-wrap">
+    <div class="phone">
+      <div class="phone-screen">
+        <div class="statusbar">
+          <span>9:41</span>
+          <span class="pill"></span>
+          <span class="right">CARENAV&nbsp; ▮▮▮▯ &nbsp;🔋</span>
+        </div>
+
+        <div class="app" id="app">
+
+        <!-- ============ SCREEN 0 · ONBOARDING ============ -->
+        <section class="screen active" id="s0">
+          <div class="brandblock">
+            <div class="logo">CARE<span>NAV</span></div>
+            <div class="hindi"><span class="mark">साइन से पहले</span> · Sign Se Pehle</div>
+            <div class="tg">Saath jab zarurat ho, spashtata jab faisla lena ho.</div>
+          </div>
+          <div class="h-sub" style="margin-bottom:12px;font-weight:600;color:var(--ink)">Shuru karein — aapki health policy kahan se hai?</div>
+          <div class="stack">
+            <button class="opt" onclick="goTo(1)">
+              <span class="ico">🏢</span>
+              <span><div class="t">Private insurance policy</div><div class="s">Star, Niva Bupa, New India… koi bhi insurer</div></span>
+              <span class="arrow">›</span>
+            </button>
+            <button class="opt" onclick="goTo(1)">
+              <span class="ico">🏛️</span>
+              <span><div class="t">Government scheme</div><div class="s">PM-JAY / Ayushman card, state schemes</div></span>
+              <span class="arrow">›</span>
+            </button>
+            <button class="opt" onclick="goTo(1)">
+              <span class="ico">🤷</span>
+              <span><div class="t">Pata nahi / Not sure</div><div class="s">Koi baat nahi — hum mil kar dhoondh lenge</div></span>
+              <span class="arrow">›</span>
+            </button>
+          </div>
+          <p class="finefoot" style="margin-top:18px">AI sirf document padhta hai. Har faisla deterministic rules se — koi guess nahi.</p>
+        </section>
+
+        <!-- ============ SCREEN 1 · POLICY UPLOAD ============ -->
+        <section class="screen" id="s1">
+          <div class="apptop">
+            <button class="back" onclick="goTo(0)">‹</button>
+            <span class="crumb">Step 1 · <b>Policy</b></span>
+          </div>
+          <h1 class="h-display">Policy ek baar<br>upload karein</h1>
+          <p class="h-sub">30 pages ho ya 60 — photo lijiye ya PDF chuniye. Baaki hum padh lenge.</p>
+
+          <button class="upzone" id="upzone" style="margin-top:16px" onclick="startUpload()">
+            <span class="cam">📷</span>
+            <span class="t">Policy ki photo / PDF</span>
+            <span class="s">Bharat SecureHealth Family Floater · 28 pages</span>
+          </button>
+
+          <div class="card progress-card" id="progressCard" style="margin-top:14px">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <b style="font-size:14px">Policy padh rahe hain…</b>
+              <span class="src">confidence-aware</span>
+            </div>
+            <div class="pbar"><i id="pfill"></i></div>
+            <div class="pmeta"><span id="ppage">Page 1 / 28</span><span id="ppct">0%</span></div>
+            <div class="pstatus" id="pstatus">Document scan shuru…</div>
+            <div class="done-flag" id="pdone">✓ Policy samajh li — har value ke saath <u>page number</u> aur <u>confidence</u>.</div>
+          </div>
+
+          <p class="finefoot" style="margin-top:14px">Jo saaf nahi dikhta, hum use guess nahi karte — <b>“unclear”</b> mark karte hain aur 🟡 route karte hain.</p>
+        </section>
+
+        <!-- ============ SCREEN 2 · POLICY CARD (HOME) ============ -->
+        <section class="screen" id="s2">
+          <div class="apptop">
+            <button class="back" onclick="goTo(1)">‹</button>
+            <span class="crumb">Home · <b>Aapki Policy</b></span>
+          </div>
+
+          <div class="card policy-head">
+            <div class="prow">
+              <span class="pname">Bharat SecureHealth<br>Family Floater</span>
+              <span class="chip green">✓ 90%+ confidence</span>
+            </div>
+            <div class="prow">
+              <span style="font-family:var(--mono);font-weight:700;font-size:15px">₹5,00,000</span>
+              <span class="src">Sum insured · Sec 1.1 · p.2</span>
+            </div>
+          </div>
+
+          <div style="margin:14px 2px 6px;display:flex;justify-content:space-between;align-items:center">
+            <b style="font-family:var(--disp);font-size:16px">30 pages → <span class="mark">5 baatein</span></b>
+            <button class="chip" onclick="speakPolicy()" id="listenBtn">🔊 Hindi mein sunein</button>
+          </div>
+
+          <div class="card">
+            <ul class="fiveline">
+              <li><span class="fi">🛡️</span><span class="fx"><b>Total cover ₹5,00,000</b> — poore parivaar ke liye (floater).<div class="meta"><span class="src">Sec 1.1 · p.2</span></div></span></li>
+              <li><span class="fi">🛏️</span><span class="fx"><b>Room limit ₹5,000/day.</b> Isse mehenga room lene par nursing + doctor fees bhi <b>usi anupat mein katengi</b>.<div class="meta"><span class="src">Sec 3.2–3.3 · p.7</span><span class="chip amber" style="font-size:10.5px;padding:2px 8px">dhyaan dein</span></div></span></li>
+              <li><span class="fi">➕</span><span class="fx"><b>ICU alag hai:</b> ₹10,000/day tak — ispar koi proportionate cut nahi.<div class="meta"><span class="src">Sec 3.4 · p.8</span></div></span></li>
+              <li><span class="fi">🚫</span><span class="fx"><b>Covered nahi:</b> cosmetic procedures, attendant ka khana, non-medical items.<div class="meta"><span class="src">Sec 5.1 · p.14</span></div></span></li>
+              <li><span class="fi">✅</span><span class="fx"><b>Co-pay: Nil</b> — approved amount par aapka hissa zero.<div class="meta"><span class="src">Sec 2.4 · p.5</span></div></span></li>
+            </ul>
+          </div>
+
+          <div class="stack" style="margin-top:14px">
+            <button class="btn btn-primary btn-hero" onclick="goTo(4)">📸&nbsp; SIGN SE PEHLE — paper check karein</button>
+            <button class="btn btn-ghost" onclick="goTo(3)">🏥&nbsp; Hospital chunein — policy ke hisaab se</button>
+          </div>
+        </section>
+
+        <!-- ============ SCREEN 3 · HOSPITAL + ROOM FILTER ============ -->
+        <section class="screen" id="s3">
+          <div class="apptop">
+            <button class="back" onclick="goTo(2)">‹</button>
+            <span class="crumb">Checkpoint 0 · <b>Hospital</b></span>
+          </div>
+          <h1 class="h-display">Ambulance se pehle —<br>policy ke hisaab se chuniye</h1>
+          <p class="h-sub">Dengue · ~4 din ka stay · Bharat SecureHealth ₹5L · room limit ₹5,000/day</p>
+
+          <div class="stack" style="margin-top:14px">
+            <div class="card hosp pick">
+              <div class="hh"><span class="hn">CityCare Multispecialty</span><span class="chip green">In-network · Cashless</span></div>
+              <div class="hrow"><span>Room options</span><b>Semi-private ₹5,000 ✓ &nbsp;·&nbsp; Private ₹8,000 ⚠️</b></div>
+              <div class="hrow"><span>Speciality</span><b>General medicine · dengue/fever</b></div>
+              <div class="hrow"><span>Est. 4-day stay</span><b>₹80k–₹95k</b></div>
+              <div class="hstrip g">🟢 Best fit — room limit ke andar + cashless pre-auth</div>
+            </div>
+
+            <div class="card hosp">
+              <div class="hh"><span class="hn">Metro Star Hospital</span><span class="chip red">Out-of-network</span></div>
+              <div class="hrow"><span>Room options</span><b>₹7,500 se shuru — limit ₹5,000 se upar</b></div>
+              <div class="hrow"><span>Payment</span><b>Pehle pay karein, phir reimbursement</b></div>
+              <div class="hrow"><span>Est. 4-day stay</span><b>₹1.1L–₹1.3L</b></div>
+              <div class="hstrip a">⚠️ Nursing + doctor fees par proportionate cut lagegi</div>
+            </div>
+
+            <div class="card hosp">
+              <div class="hh"><span class="hn">Jan Arogya General</span><span class="chip green">PM-JAY empanelled</span></div>
+              <div class="hrow"><span>Room</span><b>General ward — package rate</b></div>
+              <div class="hrow"><span>Payment</span><b>Cashless (scheme)</b></div>
+              <div class="hrow"><span>Room-rent trap</span><b>Nahi — package covers stay</b></div>
+              <div class="hstrip g">🟢 Scheme ke andar — koi room-rent deduction nahi</div>
+            </div>
+
+            <button class="btn btn-primary" onclick="goTo(4)">CityCare chunein — admission par chalein →</button>
+          </div>
+        </section>
+
+        <!-- ============ SCREEN 4 · THE CHECKPOINT — SCAN ============ -->
+        <section class="screen" id="s4">
+          <div class="apptop">
+            <button class="back" onclick="goTo(2)">‹</button>
+            <span class="crumb">The Checkpoint · <b>Scan</b></span>
+          </div>
+          <div class="ctx">📍 <b>CityCare</b> · Admission desk · Day 1</div>
+          <p class="h-sub" style="margin:0 0 12px;font-weight:600;color:var(--ink)">Desk ne form badhaya: <b>Private Room ₹8,000/day.</b> Sign karne se pehle —</p>
+
+          <div class="viewfinder">
+            <span class="vf-corner tl"></span><span class="vf-corner tr"></span>
+            <span class="vf-corner bl"></span><span class="vf-corner br"></span>
+            <div class="scanline"></div>
+            <div class="docform">
+              <div class="dh"><span>CityCare Multispecialty</span><span>Form R-2</span></div>
+              <h4>Room Category Consent</h4>
+              <div class="drow"><span>Patient</span><b>Rajesh Kumar · Dengue (NS1+)</b></div>
+              <div class="drow"><span>Selected room</span><b class="hotcell">PRIVATE — ₹8,000 / day</b></div>
+              <div class="drow"><span>Nursing charges</span><b>₹2,000 / day</b></div>
+              <div class="drow"><span>Consultant visit</span><b>₹2,000 / day</b></div>
+              <div class="sig">Attendant signature: <span class="sigline"></span></div>
+            </div>
+          </div>
+
+          <div class="shutter-area">
+            <button class="shutter" onclick="capture()" aria-label="Check this paper">📸</button>
+            <span class="shutter-hint">Photo lein — hum sign se pehle check karenge</span>
+          </div>
+        </section>
+        <!-- ============ SCREEN 5 · THE CHECKPOINT — VERDICT ============ -->
+        <section class="screen" id="s5">
+          <div class="apptop">
+            <button class="back" onclick="goTo(4)">‹</button>
+            <span class="crumb">The Checkpoint · <b>Verdict</b></span>
+          </div>
+
+          <div class="verdict-banner">
+            <div class="vk">Deterministic verdict · rule R6</div>
+            <h2>🔴 RUKIYE —<br>sign se pehle</h2>
+            <div class="vs">Private room <b>₹8,000/day</b> · aapki policy limit <b>₹5,000/day</b> (Sec 3.2, p.7)</div>
+          </div>
+
+          <div class="card money" style="margin-top:12px">
+            <div class="naive">Sirf room ka farq lagta hai: <s>₹12,000</s></div>
+            <div class="real">
+              <span class="amt" id="realAmt">~₹18,000</span>
+              <span class="lb"><span class="mark mark-anim" id="realMark">asli asar aap par</span></span>
+            </div>
+            <div class="why">Kyunki policy ke hisaab se <b>nursing aur doctor fees bhi sirf 62.5%</b> milengi (₹5,000 ÷ ₹8,000 = 0.625).</div>
+            <ul class="brk" style="margin-top:10px">
+              <li><span>Room excess — ₹3,000 × 4 din</span><span class="amt">₹12,000</span></li>
+              <li><span>Nursing par 37.5% cut (₹8,000 par)</span><span class="amt">₹3,000</span></li>
+              <li><span>Doctor fees par 37.5% cut (₹8,000 par)</span><span class="amt">₹3,000</span></li>
+              <li><span>Medicines · tests · ICU — protected</span><span class="amt prot">₹0 asar</span></li>
+            </ul>
+          </div>
+
+          <div class="alt" style="margin-top:12px">
+            <div class="at">🟢 Isi hospital mein raasta hai</div>
+            <div class="as"><b>Semi-private ₹5,000/day</b> — poori tarah limit ke andar. Same doctors, same treatment. Koi proportionate cut nahi.</div>
+          </div>
+
+          <div class="btn-row" style="margin-top:12px">
+            <button class="btn btn-primary" onclick="goTo(6)">Why? Policy mein dikhayein</button>
+            <button class="btn btn-ghost" onclick="goTo(7)">Desk se kya poochhein</button>
+          </div>
+
+          <p class="finefoot" style="margin-top:12px">Approximate — aapki uploaded policy ke hisaab se · desk par confirm karein.<br>Same paper = same verdict, har baar. Uncertainty hoti toh 🟡 dikhta, guess nahi.</p>
+        </section>
+
+        <!-- ============ SCREEN 6 · WHY? — CLAUSE PROOF ============ -->
+        <section class="screen" id="s6">
+          <div class="apptop">
+            <button class="back" onclick="goTo(5)">‹</button>
+            <span class="crumb">Proof · <b>Page 7</b></span>
+          </div>
+          <h1 class="h-display">Humari baat mat maaniye —<br><span class="mark">line khud padhiye</span></h1>
+
+          <div class="docpage" style="margin-top:14px">
+            <div class="ph"><span>Bharat SecureHealth · Policy Wording</span><span>UIN BSH-FF-2026</span></div>
+            <h5>3.2 &nbsp;Room Rent Eligibility</h5>
+            <div class="clause">Room rent shall be payable up to ₹5,000 per day (1% of Sum Insured) for a standard single/semi-private room.</div>
+            <h5>3.3 &nbsp;Proportionate Deduction</h5>
+            <div class="clause">If the Insured occupies a room whose rent exceeds the eligible limit, <mark>the Company shall pay the associated medical expenses that vary with room category — namely nursing, consultant and surgeon fees, and operation theatre charges — in the same proportion that the eligible room rent bears to the actual room rent.</mark> Medicines, consumables, implants, diagnostics and ICU charges shall not be subject to such proportionate deduction.</div>
+            <div class="pf">— PAGE 7 OF 28 —</div>
+          </div>
+
+          <div class="card" style="margin-top:12px">
+            <b style="font-family:var(--disp);font-size:15px">Aasan bhasha mein</b>
+            <ul class="plain4" style="margin-top:6px">
+              <li>Aapke room ki limit ₹5,000/day hai.</li>
+              <li>₹8,000 ka room lene par insurer room se jude kharchon ka sirf 62.5% dega.</li>
+              <li>Isliye nursing aur doctor ki fees bhi kat kar milengi.</li>
+              <li>Medicines, tests aur ICU par koi asar nahi.</li>
+            </ul>
+            <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap">
+              <span class="src">Sec 3.3 · p.7</span><span class="src">confidence 0.93</span><span class="src">IRDAI Master Circular · 29 May 2024</span>
+            </div>
+          </div>
+
+          <button class="btn btn-primary" style="margin-top:12px" onclick="goTo(7)">Ab desk se kya poochhein →</button>
+        </section>
+
+        <!-- ============ SCREEN 7 · WHAT TO ASK THE DESK ============ -->
+        <section class="screen" id="s7">
+          <div class="apptop">
+            <button class="back" onclick="goTo(5)">‹</button>
+            <span class="crumb">Action · <b>Ask the desk</b></span>
+          </div>
+          <h1 class="h-display">Desk par bas<br>itna poochhiye</h1>
+
+          <div class="quotecard" style="margin-top:14px">
+            <div class="qh">TPA / Admission desk ke liye</div>
+            <div class="qt" id="askText">“Kya ₹5,000/day tak ka semi-private room available hai? Hum wahi lenge — aur please cashless pre-authorization abhi shuru kar dijiye.”</div>
+            <div class="qe">EN — “Is a semi-private room within ₹5,000/day available? We’ll take that — and please start the cashless pre-auth now.”</div>
+          </div>
+
+          <div class="btn-row" style="margin-top:12px">
+            <button class="btn btn-soft" onclick="speakAsk()">🔊 Bol kar sunayein</button>
+            <button class="btn btn-ghost" onclick="copyAsk()">📋 Copy karein</button>
+          </div>
+
+          <div class="card" style="margin-top:12px;background:var(--green-bg);border-color:var(--green-line)">
+            <b style="color:var(--green)">✓ Sunita ne room badal liya</b>
+            <div style="font-size:13px;color:#1E5A3C;margin-top:4px">Semi-private ₹5,000/day · cashless pre-auth shuru · deduction risk ₹0</div>
+          </div>
+
+          <button class="btn btn-primary" style="margin-top:12px" onclick="goTo(8)">Care Journey dekhein →</button>
+        </section>
+
+        <!-- ============ SCREEN 8 · CARE JOURNEY + HISAAB ============ -->
+        <section class="screen" id="s8">
+          <div class="apptop">
+            <button class="back" onclick="goTo(2)">‹</button>
+            <span class="crumb">Care Journey · <b>Rajesh</b></span>
+          </div>
+
+          <div class="timeline">
+            <span class="tstage done">✓ Admission</span>
+            <span class="tstage done">✓ Investigation</span>
+            <span class="tstage done">✓ Treatment</span>
+            <span class="tstage now"><span class="dot"></span> Recovery</span>
+            <span class="tstage">Discharge</span>
+          </div>
+
+          <div class="card" style="margin-top:12px">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <b style="font-family:var(--disp);font-size:15.5px">Recovery · Day 3</b>
+              <span class="chip green">🟢 Koi red flag nahi</span>
+            </div>
+            <p style="font-size:13.4px;color:var(--ink-soft);line-height:1.55;margin-top:7px">
+              Room ₹5,000 ✓ limit ke andar. Agar ICU lage toh <b>alag cap ₹10,000/day</b> hai — uspar koi proportionate cut nahi. Interim bill ki photo lete rahiye, hum cashless approved amount se milate rahenge.
+            </p>
+            <div style="margin-top:8px"><span class="src">Stage context · insurance only — koi medical advice nahi</span></div>
+          </div>
+
+          <div class="card" style="margin-top:12px">
+            <b style="font-family:var(--disp);font-size:15.5px">Aaj ka Hisaab — Day 3</b>
+            <div class="hisaab">
+              <div class="hnum"><div class="hv">₹16,300</div><div class="hl">Hospital ne lagaya</div></div>
+              <div class="hnum cov"><div class="hv">₹16,000</div><div class="hl">Policy cover karti hai</div></div>
+              <div class="hnum pay"><div class="hv">₹300</div><div class="hl">Aap denge</div></div>
+            </div>
+            <p style="font-size:12px;color:var(--ink-soft);margin-top:9px">₹300 = syringes — IRDAI non-payable annexure. Yeh Day 1 se hi 🟡 flag tha, surprise nahi.</p>
+            <div class="runstrip"><span>Din 1–3 total ₹54,800</span><span>covered ₹53,500</span><b>aapka hissa ₹1,300</b></div>
+          </div>
+
+          <button class="btn btn-primary" style="margin-top:12px" onclick="goTo(9)">Discharge day →</button>
+        </section>
+
+        <!-- ============ SCREEN 9 · DISCHARGE ============ -->
+        <section class="screen" id="s9">
+          <div class="apptop">
+            <button class="back" onclick="goTo(8)">‹</button>
+            <span class="crumb">Day 4 · <b>Discharge</b></span>
+          </div>
+
+          <div class="gbanner">
+            <h2>🟢 No surprises</h2>
+            <p>Hisaab poora — har rupaya pehle se pata tha.</p>
+          </div>
+
+          <div class="card" style="margin-top:12px">
+            <b style="font-family:var(--disp);font-size:15.5px">Poora Hisaab — din ke hisaab se</b>
+            <table class="ledger" style="margin-top:8px">
+              <thead><tr><th>Din</th><th>Bill</th><th>Covered</th><th>Aapka</th></tr></thead>
+              <tbody>
+                <tr><td>Day 1 · Admission</td><td>21,000</td><td>20,300</td><td class="pay">700</td></tr>
+                <tr><td>Day 2 · Treatment</td><td>17,500</td><td>17,200</td><td class="pay">300</td></tr>
+                <tr><td>Day 3 · Recovery</td><td>16,300</td><td>16,000</td><td class="pay">300</td></tr>
+                <tr><td>Day 4 · Discharge</td><td>15,200</td><td>15,000</td><td class="pay">200</td></tr>
+                <tr class="total"><td>Total</td><td>70,000</td><td>68,500</td><td class="pay">1,500</td></tr>
+              </tbody>
+            </table>
+            <p style="font-size:11.8px;color:var(--ink-faint);margin-top:8px">₹1,500 = sirf IRDAI non-payables (gloves, syringes, registration) — Day 1 se flagged.</p>
+          </div>
+
+          <div class="savecard" style="margin-top:12px">
+            <div class="sv">~₹18,000 bachaye</div>
+            <p>₹8,000 room ke saath Sunita ka hissa hota <b>~₹19,500</b> — proportionate deduction ke kaaran. Sign se pehle checkpoint ne use <b>₹1,500</b> par rakha.</p>
+          </div>
+
+          <div class="card" style="margin-top:12px">
+            <b style="font-family:var(--disp);font-size:15.5px">Claim ke liye — yeh 3 documents</b>
+            <ul class="checklist" style="margin-top:6px">
+              <li><span class="cb">✓</span> Itemized final bill</li>
+              <li><span class="cb">✓</span> Discharge summary</li>
+              <li><span class="cb">✓</span> Pre-auth approval letter</li>
+            </ul>
+          </div>
+
+          <p class="finefoot" style="margin-top:14px">“Sunita ne har rupaya sign se pehle jaana — discharge ke baad nahi.”</p>
+          <button class="btn btn-ghost" style="margin-top:10px" onclick="restartDemo()">↺ Demo restart karein</button>
+        </section>
+
+        <!-- checking overlay -->
+        <div class="checkover" id="checkover">
+          <h3>Checking… <span style="font-weight:500;font-size:14px;color:var(--ink-soft)">sign se pehle</span></h3>
+          <div class="cstep" id="cs1"><span class="ck">✓</span><span class="cx"><b>Form padha</b> — 3 items mile: room, nursing, consultant <span class="src">AI · itemize</span></span></div>
+          <div class="cstep" id="cs2"><span class="ck">✓</span><span class="cx"><b>Policy se milaya</b> — room limit ₹5,000/day <span class="src">Sec 3.2 · p.7</span></span></div>
+          <div class="cstep" id="cs3"><span class="ck">✓</span><span class="cx"><b>Rules engine</b> — R6: limit cross → proportionate cascade <span class="src">deterministic</span></span></div>
+          <div class="cfoot">AI reads · code decides · no guessing</div>
+        </div>
+
+        <div class="flash" id="flash"></div>
+        <div class="toast" id="toast">Copied ✓</div>
+
+        </div><!-- /app -->
+      </div><!-- /phone-screen -->
+    </div><!-- /phone -->
+
+    <div class="cuebar" id="cuebar"><b>00:00</b><span id="cuetext">Sunita's husband is admitted. She uploads a policy she has never read.</span></div>
+
+    <div class="controls">
+      <button class="navbtn" onclick="step(-1)" aria-label="Previous screen">←</button>
+      <div class="dots" id="dots"></div>
+      <button class="navbtn" onclick="step(1)" aria-label="Next screen">→</button>
+    </div>
+    <div class="kbd-hint">← → arrow keys se bhi chalega</div>
+  </div><!-- /phone-wrap -->
+
+</div><!-- /stage -->
+<script>
+/* ================= CARENAV prototype logic =================
+   AI reads (simulated here), code decides — all verdicts and
+   numbers below come from the frozen blueprint's demo data.
+   ============================================================ */
+
+const N = 10; // s0..s9
+let cur = 0;
+
+const CUES = [
+  ["00:00", "Sunita's husband is admitted. She uploads a policy she has never read."],
+  ["00:00–00:15", "The only time AI touches a decision — reading the document."],
+  ["00:15–00:30", "30 pages become five lines she can hear. Room covered up to ₹5,000/day."],
+  ["00:30–00:45", "Before the ambulance leaves — Metro Star is closer, but out of network and above her room limit."],
+  ["00:45–01:05", "The hospital offers an ₹8,000 room. She photographs the form before signing."],
+  ["01:05–01:20", "Not ₹12,000 — about ₹18,000. The verdict is deterministic: same paper, same answer, every time."],
+  ["01:20–01:35", "We don't ask her to trust the AI. We show her the line — page 7, highlighted."],
+  ["01:35–01:45", "One tap gives her the exact question for the desk."],
+  ["01:45–01:55", "Coverage context at every stage — never medical advice, only insurance context."],
+  ["01:55–02:00", "Sunita knew every rupee before signing — not after discharge."]
+];
+
+const dotsEl = document.getElementById('dots');
+for (let i = 0; i < N; i++) {
+  const d = document.createElement('i');
+  d.addEventListener('click', () => goTo(i));
+  dotsEl.appendChild(d);
+}
+
+function goTo(i) {
+  if (i < 0 || i >= N) return;
+  const dirBack = i < cur;
+  const prev = document.getElementById('s' + cur);
+  const next = document.getElementById('s' + i);
+  prev.classList.remove('active');
+  prev.classList.toggle('back', !dirBack);
+  next.classList.toggle('back', dirBack);
+  // force transition restart
+  void next.offsetWidth;
+  next.classList.add('active');
+  next.classList.remove('back');
+  next.scrollTop = 0;
+  cur = i;
+  hideChecking();
+  updateChrome();
+  if (i === 5) revealVerdict();
+}
+
+function step(d) { goTo(Math.min(N - 1, Math.max(0, cur + d))); }
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'ArrowRight') step(1);
+  if (e.key === 'ArrowLeft') step(-1);
+});
+
+function updateChrome() {
+  document.querySelectorAll('.rail-item').forEach(b => {
+    b.classList.toggle('active', Number(b.dataset.go) === cur);
+  });
+  [...dotsEl.children].forEach((d, idx) => d.classList.toggle('on', idx === cur));
+  const [t, txt] = CUES[cur];
+  document.querySelector('#cuebar b').textContent = t;
+  document.getElementById('cuetext').textContent = txt;
+}
+document.querySelectorAll('.rail-item').forEach(b => {
+  b.addEventListener('click', () => goTo(Number(b.dataset.go)));
+});
+
+/* ---------- Screen 1 · policy upload simulation ---------- */
+let uploading = false;
+const SUBSTATUS = [
+  "Room rent limit dhoondh rahe hain…",
+  "Proportionate deduction clause padh rahe hain… <b>(Sec 3.3)</b>",
+  "Exclusions note kar rahe hain… <b>(Sec 5.1)</b>",
+  "ICU sub-limit mila… <b>₹10,000/day</b>",
+  "Har field ke saath confidence + page number save…"
+];
+function startUpload() {
+  if (uploading) return;
+  uploading = true;
+  const card = document.getElementById('progressCard');
+  const fill = document.getElementById('pfill');
+  const pg = document.getElementById('ppage');
+  const pct = document.getElementById('ppct');
+  const st = document.getElementById('pstatus');
+  const done = document.getElementById('pdone');
+  card.classList.add('on');
+  done.classList.remove('on');
+  let page = 0;
+  const total = 28;
+  const timer = setInterval(() => {
+    page++;
+    const p = Math.round((page / total) * 100);
+    fill.style.width = p + '%';
+    pg.textContent = 'Page ' + page + ' / ' + total;
+    pct.textContent = p + '%';
+    if (page % 5 === 1) {
+      st.innerHTML = SUBSTATUS[Math.min(SUBSTATUS.length - 1, Math.floor(page / 5))];
+    }
+    if (page >= total) {
+      clearInterval(timer);
+      st.innerHTML = "Ho gaya.";
+      done.classList.add('on');
+      setTimeout(() => { uploading = false; goTo(2); }, 950);
+    }
+  }, 90);
+}
+
+/* ---------- Screen 4 → 5 · checkpoint capture ---------- */
+let checking = false;
+function capture() {
+  if (checking) return;
+  checking = true;
+  const flash = document.getElementById('flash');
+  flash.classList.remove('go'); void flash.offsetWidth; flash.classList.add('go');
+  setTimeout(showChecking, 260);
+}
+function showChecking() {
+  const ov = document.getElementById('checkover');
+  ov.classList.add('on');
+  const steps = ['cs1', 'cs2', 'cs3'].map(id => document.getElementById(id));
+  steps.forEach(s => s.classList.remove('on'));
+  steps.forEach((s, i) => setTimeout(() => s.classList.add('on'), 420 + i * 620));
+  setTimeout(() => { checking = false; goTo(5); }, 420 + 3 * 620 + 500);
+}
+function hideChecking() {
+  document.getElementById('checkover').classList.remove('on');
+}
+
+/* ---------- Screen 5 · verdict reveal (count-up + marker) ---------- */
+function revealVerdict() {
+  const amt = document.getElementById('realAmt');
+  const mk = document.getElementById('realMark');
+  mk.classList.remove('swiped');
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduce) { amt.textContent = '~₹18,000'; mk.classList.add('swiped'); return; }
+  const from = 12000, to = 18000, dur = 900, t0 = performance.now();
+  function tick(t) {
+    const k = Math.min(1, (t - t0) / dur);
+    const ease = 1 - Math.pow(1 - k, 3);
+    const v = Math.round(from + (to - from) * ease);
+    amt.textContent = '~₹' + v.toLocaleString('en-IN');
+    if (k < 1) requestAnimationFrame(tick);
+    else setTimeout(() => mk.classList.add('swiped'), 120);
+  }
+  requestAnimationFrame(tick);
+}
+
+/* ---------- text-to-speech (Web Speech API, hi-IN) ---------- */
+function speak(text) {
+  if (!('speechSynthesis' in window)) { toast('TTS is browser mein available nahi'); return; }
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  const voices = speechSynthesis.getVoices();
+  const hi = voices.find(v => v.lang && v.lang.toLowerCase().startsWith('hi'));
+  if (hi) u.voice = hi;
+  u.lang = 'hi-IN';
+  u.rate = 0.95;
+  speechSynthesis.speak(u);
+}
+function speakPolicy() {
+  speak("Aapki policy: Bharat SecureHealth, paanch lakh ka family floater. " +
+    "Room limit paanch hazaar rupaye har din. Isse mehenga room lene par nursing aur doctor fees bhi usi anupaat mein kat jaati hain. " +
+    "I.C.U. alag hai, das hazaar har din tak. Cosmetic aur non-medical cheezein covered nahin hain. Co-pay zero hai.");
+}
+function speakAsk() {
+  speak("Kya paanch hazaar rupaye tak ka semi private room available hai? Hum wahi lenge. Aur please cashless pre-authorization abhi shuru kar dijiye.");
+}
+
+/* ---------- copy + toast ---------- */
+function copyAsk() {
+  const txt = document.getElementById('askText').textContent.trim();
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(txt).then(() => toast('Copied ✓ — desk par dikhayein'))
+      .catch(() => toast('Copy nahi hua — select karke copy karein'));
+  } else {
+    toast('Copy nahi hua — select karke copy karein');
+  }
+}
+let toastTimer = null;
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('on');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('on'), 1800);
+}
+
+/* ---------- restart ---------- */
+function restartDemo() {
+  uploading = false; checking = false;
+  const card = document.getElementById('progressCard');
+  card.classList.remove('on');
+  document.getElementById('pfill').style.width = '0%';
+  document.getElementById('ppage').textContent = 'Page 1 / 28';
+  document.getElementById('ppct').textContent = '0%';
+  document.getElementById('pstatus').textContent = 'Document scan shuru…';
+  document.getElementById('pdone').classList.remove('on');
+  goTo(0);
+}
+
+updateChrome();
+if ('speechSynthesis' in window) { speechSynthesis.getVoices(); }
+</script>
+</body>
+</html>
