@@ -343,6 +343,54 @@ button{font-family:inherit;border:none;cursor:pointer;background:none;color:inhe
 .finefoot{font-size:11.5px;color:var(--ink-faint);line-height:1.5;text-align:center;padding:2px 8px}
 .finefoot.key{font-size:13px;color:var(--ink-soft);font-weight:600;background:var(--chalk);border:1px solid var(--line);border-radius:12px;padding:10px 12px;text-align:left}
 
+/* engine reveal — the rule cascade, made visible */
+.engineModal{
+  position:absolute;inset:0;z-index:50;background:rgba(10,18,14,.55);
+  display:none;align-items:flex-end;justify-content:center;padding:0;
+}
+.engineModal.on{display:flex}
+.engineCard{
+  width:100%;max-height:88%;background:var(--chalk);border-radius:26px 26px 0 0;
+  padding:20px 18px 22px;overflow-y:auto;box-shadow:0 -20px 50px rgba(0,0,0,.35);
+  animation:sheetUp .28s cubic-bezier(.2,.8,.2,1);
+}
+@keyframes sheetUp{from{transform:translateY(30px);opacity:0}to{transform:translateY(0);opacity:1}}
+.engineHead{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.engineHead b{font-family:var(--disp);font-weight:800;font-size:18px}
+.engineClose{width:32px;height:32px;border-radius:10px;background:var(--card);border:1px solid var(--line);color:var(--ink-soft);font-size:14px}
+.engineSub{font-size:12.8px;color:var(--ink-soft);line-height:1.5;margin-top:6px}
+.erule{
+  margin-top:10px;border-radius:14px;border:1px solid var(--line);background:var(--card);
+  padding:11px 13px;opacity:0;transform:translateY(8px);transition:opacity .3s,transform .3s;
+}
+.erule.show{opacity:1;transform:none}
+.erow{display:flex;align-items:center;gap:10px}
+.enum{
+  font-family:var(--mono);font-size:11px;font-weight:700;color:var(--ink-soft);
+  background:var(--chalk);border:1px solid var(--line);border-radius:7px;padding:3px 7px;flex:0 0 auto;
+}
+.etxt{flex:1;font-size:13.3px;font-weight:600;line-height:1.35}
+.estatus{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--ink-faint);white-space:nowrap}
+.erule[data-state="fire"]{border-color:var(--red-line);background:var(--red-bg)}
+.erule[data-state="fire"] .estatus{color:var(--red)}
+.erule[data-state="pass"] .estatus{color:var(--green)}
+.erule[data-state="skip"]{opacity:.55!important}
+.erule[data-state="skip"] .estatus{color:var(--ink-faint)}
+.ecalc{
+  margin-top:8px;padding-top:8px;border-top:1px dashed var(--red-line);
+  font-family:var(--mono);font-size:11.8px;color:var(--red);line-height:1.55;
+}
+.engineFoot{
+  margin-top:14px;padding:12px 13px;border-radius:14px;background:var(--ever-tint);color:var(--ever-deep);
+  font-size:12.3px;line-height:1.5;font-weight:600;
+}
+.engineToggleWrap{margin-top:14px;display:flex;gap:8px;flex-wrap:wrap}
+.etab{
+  font-family:var(--mono);font-size:11px;font-weight:700;padding:7px 12px;border-radius:999px;
+  border:1px solid var(--line);background:var(--card);color:var(--ink-soft);
+}
+.etab.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+
 /* proof / policy page */
 .docpage{
   background:#FFFEF8;border:1px solid #E8E3D2;border-radius:14px;padding:18px 16px;
@@ -471,7 +519,7 @@ button{font-family:inherit;border:none;cursor:pointer;background:none;color:inhe
     <button class="rail-item" data-go="2"><span class="num">3</span><span><span class="lbl">Policy Card</span><div class="sub">30 pages → 5 lines + audio</div></span></button>
     <button class="rail-item" data-go="3"><span class="num">4</span><span><span class="lbl">Hospital Filter</span><div class="sub">Checkpoint 0 — policy-aware choice</div></span></button>
     <button class="rail-item" data-go="4"><span class="num">5</span><span><span class="lbl">The Checkpoint · Scan</span><div class="sub">Photo the paper before signing</div></span></button>
-    <button class="rail-item" data-go="5"><span class="num">5</span><span><span class="lbl">The Checkpoint · Verdict</span><div class="sub">🔴 ~₹18,000, not ₹12,000</div></span></button>
+    <button class="rail-item" data-go="5"><span class="num">5</span><span><span class="lbl">The Checkpoint · Verdict</span><div class="sub">🔴 ~₹18,000 · tap "Engine dekhein" for the rule cascade</div></span></button>
     <button class="rail-item" data-go="6"><span class="num">6</span><span><span class="lbl">Why? — Clause proof</span><div class="sub">The highlighted line, page 7</div></span></button>
     <button class="rail-item" data-go="7"><span class="num">7</span><span><span class="lbl">Ask the Desk</span><div class="sub">The exact question, spoken aloud</div></span></button>
     <button class="rail-item" data-go="8"><span class="num">8</span><span><span class="lbl">Care Journey + Hisaab</span><div class="sub">Stage context + daily ledger</div></span></button>
@@ -702,6 +750,8 @@ button{font-family:inherit;border:none;cursor:pointer;background:none;color:inhe
             <button class="btn btn-ghost" onclick="goTo(7)">Desk se kya poochhein</button>
           </div>
 
+          <button class="btn btn-ghost" style="margin-top:10px" onclick="openEngine()">🔍&nbsp; Engine dekhein — kaise decide hua</button>
+
           <p class="finefoot key" style="margin-top:12px">⚠️ Approximate — aapki uploaded policy ke hisaab se · desk par confirm karein.<br>Same paper = same verdict, har baar. Uncertainty hoti toh 🟡 dikhta, guess nahi.</p>
         </section>
 
@@ -862,6 +912,26 @@ button{font-family:inherit;border:none;cursor:pointer;background:none;color:inhe
         <div class="flash" id="flash"></div>
         <div class="toast" id="toast">Copied ✓</div>
 
+        <!-- ============ ENGINE REVEAL MODAL ============ -->
+        <div class="engineModal" id="engineModal">
+          <div class="engineCard">
+            <div class="engineHead">
+              <b>Engine ne kaise socha</b>
+              <button class="engineClose" onclick="closeEngine()" aria-label="Close">✕</button>
+            </div>
+            <p class="engineSub">~200 lines ka plain code — koi AI is decision ke andar nahi. Same input, hamesha same output. Har rule ek fixed order mein check hoti hai; jo pehle fire ho, wahi jeetta hai.</p>
+
+            <div class="engineToggleWrap">
+              <button class="etab on" id="etabA" onclick="showEngineCase('room')">Case A — Room ₹8,000/din</button>
+              <button class="etab" id="etabB" onclick="showEngineCase('sublimit')">Case B — Diagnostic sub-limit</button>
+            </div>
+
+            <div id="engineSteps"></div>
+
+            <div class="engineFoot" id="engineFoot">R6 fire hua, isliye R7 skip ho gaya — pehli matching rule jeetti hai. Yehi wajah hai verdict deterministic hai: koi randomness, koi "vibe check" nahi.</div>
+          </div>
+        </div>
+
         </div><!-- /app -->
       </div><!-- /phone-screen -->
     </div><!-- /phone -->
@@ -930,6 +1000,7 @@ function goTo(i) {
   next.scrollTop = 0;
   cur = i;
   hideChecking();
+  closeEngine();
   updateChrome();
   if (i === 5) revealVerdict();
 }
@@ -1072,6 +1143,69 @@ function toast(msg) {
   t.classList.add('on');
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => t.classList.remove('on'), 1800);
+}
+
+/* ---------- Engine Reveal modal ---------- */
+const ENGINE_CASES = {
+  room: {
+    foot: 'R6 fire hua, isliye R7 skip ho gaya — pehli matching rule jeetti hai. Yehi wajah hai verdict deterministic hai: koi randomness, koi "vibe check" nahi.',
+    rules: [
+      { n:'R1', txt:'Policy upload hui hai?', status:'✓ Haan', state:'pass' },
+      { n:'R2', txt:'Extraction confidence ≥ 0.8?', status:'✓ 0.95', state:'pass' },
+      { n:'R3', txt:'Item category recognized?', status:'✓ "room"', state:'pass' },
+      { n:'R4', txt:'Policy exclusions mein hai?', status:'✗ Nahi', state:'pass' },
+      { n:'R5', txt:'IRDAI non-payable list mein?', status:'✗ Nahi', state:'pass' },
+      { n:'R6', txt:'category == room AND amount > room_rent_limit?', status:'🔴 ₹8,000 > ₹5,000', state:'fire',
+        calc:'→ runProportionateCascade(8000, policy) chalaya<br>→ ratio = 5,000 ÷ 8,000 = 0.625<br>→ nursing + doctor fees par 62.5% hi milega<br>→ total patient extra ≈ ₹18,000' },
+      { n:'R7', txt:'Sub-limit check', status:'— skip (R6 pehle fire hua)', state:'skip' }
+    ]
+  },
+  sublimit: {
+    foot: 'Yahan room-rule (R6) apply hi nahi hota — yeh diagnostic item hai. Engine seedha R7 tak jaata hai aur sub-limit dekh kar 🟡 deta hai, kabhi guess nahi karta.',
+    rules: [
+      { n:'R1', txt:'Policy upload hui hai?', status:'✓ Haan', state:'pass' },
+      { n:'R2', txt:'Extraction confidence ≥ 0.8?', status:'✓ 0.88', state:'pass' },
+      { n:'R3', txt:'Item category recognized?', status:'✓ "diagnostic"', state:'pass' },
+      { n:'R4', txt:'Policy exclusions mein hai?', status:'✗ Nahi', state:'pass' },
+      { n:'R5', txt:'IRDAI non-payable list mein?', status:'✗ Nahi', state:'pass' },
+      { n:'R6', txt:'category == room AND amount > room_rent_limit?', status:'— N/A, room item nahi', state:'skip' },
+      { n:'R7', txt:'Sub-limit exists AND amount > sub-limit?', status:'🟡 ₹15,000 > ₹10,000', state:'fire',
+        calc:'→ diagnostic sub-limit = ₹10,000 (Sec 4.1)<br>→ item amount ₹15,000 usse zyada hai<br>→ verdict: YELLOW "Sub-limit se upar — desk par balance confirm karein"<br>→ koi hard reject nahi, sirf confirmation maanga' }
+    ]
+  }
+};
+
+function renderEngine(caseKey) {
+  const data = ENGINE_CASES[caseKey];
+  const wrap = document.getElementById('engineSteps');
+  document.getElementById('engineFoot').textContent = data.foot;
+  wrap.innerHTML = data.rules.map(r => `
+    <div class="erule" data-state="${r.state}">
+      <div class="erow">
+        <span class="enum">${r.n}</span>
+        <span class="etxt">${r.txt}</span>
+        <span class="estatus">${r.status}</span>
+      </div>
+      ${r.calc ? `<div class="ecalc">${r.calc}</div>` : ''}
+    </div>
+  `).join('');
+  const steps = [...wrap.querySelectorAll('.erule')];
+  steps.forEach(s => s.classList.remove('show'));
+  steps.forEach((s, i) => setTimeout(() => s.classList.add('show'), 90 + i * 110));
+}
+
+function showEngineCase(caseKey) {
+  document.getElementById('etabA').classList.toggle('on', caseKey === 'room');
+  document.getElementById('etabB').classList.toggle('on', caseKey === 'sublimit');
+  renderEngine(caseKey);
+}
+
+function openEngine() {
+  document.getElementById('engineModal').classList.add('on');
+  showEngineCase('room');
+}
+function closeEngine() {
+  document.getElementById('engineModal').classList.remove('on');
 }
 
 /* ---------- restart ---------- */
